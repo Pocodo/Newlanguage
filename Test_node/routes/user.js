@@ -1,154 +1,150 @@
 const express = require("express");
-const connection = require("../connection");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-require("dotenv").config();
-var auth = require("../services/authentication");
-var checkRole = require("../services/checkRole");
-router.post("/signup", (req, res) => {
-  let user = req.body;
-  let query = "SELECT email, password, role, status FROM user WHERE email=?";
-  connection.query(query, [user.email], (err, results) => {
-    if (!err) {
-      if (results.length <= 0) {
-        query =
-          "INSERT INTO user(name, contactNumber, email, password, status, role) VALUES (?, ?, ?, ?, 'false', 'user')";
-        connection.query(
-          query,
-          [user.name, user.contactNumber, user.email, user.password],
-          (err, results) => {
-            if (!err) {
-              return res
-                .status(200)
-                .json({ message: "successfully registered" });
-            } else {
-              return res.status(500).json(err);
-            }
-          }
-        );
+const User = require("../models/userModel");
+const auth = require("../services/authentication");
+const checkRole = require("../services/checkRole");
+
+// User Signup
+router.post("/signup", async (req, res) => {
+  try {
+    const { name, contactNumber, email, password } = req.body;
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+    const newUser = new User({
+      name,
+      contactNumber,
+      email,
+      password,
+    });
+    await newUser.save();
+    res.status(200).json({ message: "Successfully registered" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// User Login
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user || user.password !== password) {
+      return res.status(401).json({ message: "Invalid Email or Password" });
+    }
+    if (user.status === "false") {
+      return res.status(401).json({ message: "Wait for admin approval" });
+    }
+    const token = jwt.sign(
+      { email: user.email, role: user.role },
+      process.env.ACCESS_TOKEN,
+      { expiresIn: "8h" }
+    );
+    res.status(200).json({ token });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Forgot Password
+router.post("/forgotPassword", async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(200).json({ message: "Password sent to your email" });
+    }
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+    const mailOption = {
+      from: process.env.EMAIL,
+      to: user.email,
+      subject: "Password",
+      html: `<b>Your Password is: ${user.password}</b>`,
+    };
+    transporter.sendMail(mailOption, (error, info) => {
+      if (error) {
+        console.log(error);
       } else {
-        return res.status(400).json({ message: "Email already exists" });
+        console.log("Email sent: " + info.response);
       }
-    } else {
-      return res.status(500).json(err);
+    });
+    return res.status(200).json({ message: "Password sent to your email" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get Users
+router.get(
+  "/get",
+  auth.authenticateToken,
+  checkRole.checkRole,
+  async (req, res) => {
+    try {
+      const users = await User.find({ role: "user" }).select(
+        "id name email contactNumber status"
+      );
+      res.status(200).json(users);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
-  });
-});
-router.post("/login", (req, res) => {
-  const user = req.body;
-  query = "SELECT email, password, role, status FROM user WHERE email=?";
-  connection.query(query, [user.email], (err, results) => {
-    if (!err) {
-      if (results.length <= 0 || results[0].password != user.password) {
-        return res.status(401).json({ message: "Invalid Email or Password" });
-      } else if (results[0].status === "false") {
-        return res.status(401).json({ message: "wait for admin approval" });
-      } else if (results[0].password == user.password) {
-        const response = { email: results[0].email, role: results[0].role };
-        const accessToken = jwt.sign(response, process.env.ACCESS_TOKEN, {
-          expiresIn: "8h",
-        });
-        res.status(200).json({ token: accessToken });
-      } else {
-        return res.status(400).json({ message: "error" });
-      }
-    } else {
-      return res.status(500).json(err);
-    }
-  });
-});
-var transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.PASSWORD,
-  },
-});
-router.post("/forgotPassword", (req, res) => {
-  const user = req.body;
-  query = "select email, password from user where email=?";
-  connection.query(query, [user.email], (err, results) => {
-    if (!err) {
-      if (results.length <= 0) {
-        return res.status(200).json({ message: "Password sent to your email" });
-      } else {
-        var mailOption = {
-          from: process.env.EMAIL,
-          to: results[0].email,
-          subject: "Password",
-          html: "<b> Your Password is :" + results[0].password + "</b>",
-        };
-        transporter.sendMail(mailOption, function (error, info) {
-          if (error) {
-            console.log(error);
-          } else {
-            console.log("email sent: " + info.response);
-          }
-        });
-        return res.status(200).json({ message: "Password sent to your email" });
-      }
-    } else {
-      return req.status(500).json(err);
-    }
-  });
-});
-router.get("/get", auth.authenticateToken, checkRole.checkRole, (req, res) => {
-  var query =
-    "select id,name,email,contactNumber,status from user where role ='user' ";
-  connection.query(query, (err, results) => {
-    if (!err) {
-      return res.status(200).json(results);
-    } else {
-      return res.status(500).json(err);
-    }
-  });
-});
+  }
+);
+
+// Update User Status
 router.patch(
   "/update",
   auth.authenticateToken,
   checkRole.checkRole,
-  (req, res) => {
-    let user = req.body;
-    var query = "update user set status =? where id=?";
-    connection.query(query, [user.status, user.id], (err, results) => {
-      if (!err) {
-        if (results.affectedRows == 0) {
-          return res.status(404).json({ message: "user id doesn't exist" });
-        }
-        return res.status(200).json({ message: "update success" });
-      } else {
-        return res.status(500).json(err);
+  async (req, res) => {
+    try {
+      const { id, status } = req.body;
+      const updatedUser = await User.findByIdAndUpdate(
+        id,
+        { status },
+        { new: true }
+      );
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User ID not found" });
       }
-    });
+      res.status(200).json({ message: "Update success" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 );
+
+// Check Token
 router.get("/checkToken", auth.authenticateToken, (req, res) => {
   return res.status(200).json({ message: "true" });
 });
-router.post("/changePassword", auth.authenticateToken, (req, res) => {
-  const user = req.body;
-  const email = res.locals.email;
-  var query = "select *from user where email=? and password=?";
-  connection.query(query, [email, user.oldPassword], (err, results) => {
-    if (!err) {
-      if (results.length <= 0) {
-        return res.status(400).json({ message: "Inconrect old password" });
-      } else if (results[0].password == user.oldPassword) {
-        query = "update user set password=? where email=?";
-        connection.query(query, [user.newPassword, email], (err, results) => {
-          if (!err) {
-            return res.status(200).json({ message: "update success" });
-          } else {
-            return res.status(500).json(err);
-          }
-        });
-      } else {
-        return res.status(400).json({ message: "error" });
-      }
-    } else {
-      return res.status(500).json(err);
+
+// Change Password
+router.post("/changePassword", auth.authenticateToken, async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const user = await User.findOne({
+      email: res.locals.email,
+      password: oldPassword,
+    });
+    if (!user) {
+      return res.status(400).json({ message: "Incorrect old password" });
     }
-  });
+    user.password = newPassword;
+    await user.save();
+    return res.status(200).json({ message: "Update success" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
+
 module.exports = router;

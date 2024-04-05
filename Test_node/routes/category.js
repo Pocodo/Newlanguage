@@ -1,82 +1,71 @@
 const express = require("express");
-const connection = require("../connection");
 const router = express.Router();
-var auth = require("../services/authentication");
-var checkRole = require("../services/checkRole");
+const Category = require("../models/categoryModel");
 
-router.post(
-  "/add",
-  auth.authenticateToken,
-  checkRole.checkRole,
-  (req, res, next) => {
-    let category = req.body;
-    query = "insert into category (name) values(?)";
-    connection.query(query, [category.name], (err, results) => {
-      if (!err) {
-        return res.status(200).json({ message: "Category added successfully" });
-      } else {
-        return res.status(500).json(err);
-      }
-    });
+// Create a new category
+router.post("/add", async (req, res) => {
+  try {
+    const { name } = req.body;
+    const category = new Category({ name });
+    await category.save();
+    res.status(201).json(category);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-);
-router.get("/get", auth.authenticateToken, (req, res, next) => {
-  var query = "select *from category order by name";
-  connection.query(query, (err, results) => {
-    if (!err) {
-      return res.status(200).json(results);
-    } else {
-      return res.status(500).json(err);
-    }
-  });
 });
-router.patch(
-  "/update",
-  auth.authenticateToken,
-  checkRole.checkRole,
-  (req, res, next) => {
-    let product = req.body;
-    var query = "update category set name=? where id=?";
-    connection.query(query, [product.name, product.id], (err, results) => {
-      if (!err) {
-        if (results.affectedRows == 0) {
-          return res.status(404).json({ message: "No Category Found" });
-        }
-        return res.status(200).json({ message: "category updated" });
-      } else {
-        return res.status(500).json(err);
-      }
-    });
+
+// Get all categories
+router.get("/get", async (req, res) => {
+  try {
+    const categories = await Category.find();
+    res.status(200).json(categories);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-);
-router.delete(
-  "/delete/:id",
-  auth.authenticateToken,
-  checkRole.checkRole,
-  (req, res, next) => {
-    const id = req.params.id;
+});
 
-    // Step 1: Delete associated products
-    const deleteProductsQuery = "DELETE FROM product WHERE categoryId = ?";
-    connection.query(deleteProductsQuery, [id], (err, productResult) => {
-      if (err) {
-        return res.status(500).json(err);
-      }
-
-      // Step 2: Delete the category itself
-      const deleteCategoryQuery = "DELETE FROM category WHERE id = ?";
-      connection.query(deleteCategoryQuery, [id], (err, categoryResult) => {
-        if (err) {
-          return res.status(500).json(err);
-        }
-
-        if (categoryResult.affectedRows === 0) {
-          return res.status(404).json({ message: "Category not found" });
-        }
-
-        return res.status(200).json({ message: "Category deleted" });
-      });
-    });
+// Get a specific category by ID
+router.get("/get/:id", async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+    res.status(200).json(category);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-);
+});
+
+// Update a category
+router.patch("/update/:id", async (req, res) => {
+  try {
+    const { name } = req.body;
+    const updatedCategory = await Category.findByIdAndUpdate(
+      req.params.id,
+      { name },
+      { new: true }
+    );
+    if (!updatedCategory) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+    res.status(200).json(updatedCategory);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete a category
+router.delete("/delete/:id", async (req, res) => {
+  try {
+    const deletedCategory = await Category.findByIdAndDelete(req.params.id);
+    if (!deletedCategory) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+    res.status(200).json({ message: "Category deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

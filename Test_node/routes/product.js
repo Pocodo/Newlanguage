@@ -1,114 +1,100 @@
 const express = require("express");
-const connection = require("../connection");
 const router = express.Router();
-var auth = require("../services/authentication");
-var checkRole = require("../services/checkRole");
+const Product = require("../models/productModel");
+const auth = require("../services/authentication");
+const checkRole = require("../services/checkRole");
 
+// Add Product
 router.post(
   "/add",
   auth.authenticateToken,
   checkRole.checkRole,
-  (req, res, next) => {
-    let product = req.body;
-    let query =
-      "INSERT INTO product (name, categoryId, description, price, status) VALUES (?, ?, ?, ?, 'true')";
-    connection.query(
-      query,
-      [product.name, product.categoryId, product.description, product.price],
-      (err, results) => {
-        if (!err) {
-          return res
-            .status(200)
-            .json({ message: "Product added successfully" });
-        } else {
-          return res.status(500).json(err);
-        }
-      }
-    );
+  async (req, res) => {
+    try {
+      const product = await Product.create(req.body);
+      res.status(200).json({ message: "Product added successfully" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 );
 
-router.get("/get", auth.authenticateToken, (req, res, next) => {
-  var query =
-    "SELECT p.id, p.name, p.description, p.price, p.status, c.id AS categoryId, c.name AS categoryName FROM product AS p INNER JOIN category AS c ON p.categoryId = c.id";
-  connection.query(query, (err, results) => {
-    if (!err) {
-      return res.status(200).json(results);
-    } else {
-      return res.status(500).json(err);
-    }
-  });
+// Get all products
+router.get("/get", auth.authenticateToken, async (req, res) => {
+  try {
+    const products = await Product.find().populate("categoryId");
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
-router.get("/getByCategory/:id", auth.authenticateToken, (req, res, next) => {
-  const id = req.params.id;
-  var query =
-    "select id,name from product where categoryId=? and status='true'";
-  connection.query(query, [id], (err, results) => {
-    if (!err) {
-      return res.status(200).json(results);
-    } else {
-      return res.status(500).json(err);
-    }
-  });
+
+// Get products by category ID
+router.get("/getByCategory/:id", auth.authenticateToken, async (req, res) => {
+  try {
+    const products = await Product.find({
+      categoryId: req.params.id,
+      status: "true",
+    }).select("id name");
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
-router.get("/getById/:id", auth.authenticateToken, (req, res, next) => {
-  const id = req.params.id;
-  var query = "select id,name,description,price from product where id=? ";
-  connection.query(query, [id], (err, results) => {
-    if (!err) {
-      return res.status(200).json(results[0]);
-    } else {
-      return res.status(500).json(err);
+
+// Get product by ID
+router.get("/getById/:id", auth.authenticateToken, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id).select(
+      "id name description price"
+    );
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
     }
-  });
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
+
+// Update product
 router.patch(
   "/update",
   auth.authenticateToken,
   checkRole.checkRole,
-  (req, res, next) => {
-    let product = req.body;
-    var query =
-      "update product set name=?,categoryId=?,description=?,price=? where id=?";
-    connection.query(
-      query,
-      [
-        product.name,
-        product.categoryId,
-        product.description,
-        product.price,
-        product.id,
-      ],
-      (err, results) => {
-        if (!err) {
-          if (results.affectedRows == 0) {
-            return res.status(404).json({ message: "No product Found" });
-          }
-          return res.status(200).json({ message: "product updated" });
-        } else {
-          return res.status(500).json(err);
-        }
+  async (req, res) => {
+    try {
+      const updatedProduct = await Product.findByIdAndUpdate(
+        req.body.id,
+        req.body,
+        { new: true }
+      );
+      if (!updatedProduct) {
+        return res.status(404).json({ message: "No product Found" });
       }
-    );
+      res.status(200).json({ message: "Product updated" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 );
+
+// Delete product
 router.delete(
   "/delete/:id",
   auth.authenticateToken,
   checkRole.checkRole,
-  (req, res, next) => {
-    const id = req.params.id;
-    var query = "delete from product where id=?";
-    connection.query(query, [id], (err, results) => {
-      if (!err) {
-        if (results.affectedRows == 0) {
-          return res.status(404).json({ message: "No product Found" });
-        }
-        return res.status(200).json({ message: "product deleted" });
-      } else {
-        return res.status(500).json(err);
+  async (req, res) => {
+    try {
+      const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+      if (!deletedProduct) {
+        return res.status(404).json({ message: "No product Found" });
       }
-    });
+      res.status(200).json({ message: "Product deleted" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 );
+
 module.exports = router;
