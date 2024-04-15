@@ -55,7 +55,7 @@ router.post("/forgotPassword", async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(200).json({ message: "Password sent to your email" });
+      return res.status(200).json({ message: "cant find this email" });
     }
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -83,7 +83,6 @@ router.post("/forgotPassword", async (req, res) => {
   }
 });
 
-// Get Users
 router.get(
   "/get",
   auth.authenticateToken,
@@ -100,7 +99,6 @@ router.get(
   }
 );
 
-// Update User Status
 router.patch(
   "/update",
   auth.authenticateToken,
@@ -122,11 +120,6 @@ router.patch(
     }
   }
 );
-
-// Check Token
-router.get("/checkToken", auth.authenticateToken, (req, res) => {
-  return res.status(200).json({ message: "true" });
-});
 
 // Change Password
 router.post("/changePassword", auth.authenticateToken, async (req, res) => {

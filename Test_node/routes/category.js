@@ -55,7 +55,6 @@ router.patch("/update/:id", async (req, res) => {
   }
 });
 
-// Delete a category
 router.delete("/delete/:id", async (req, res) => {
   try {
     const deletedCategory = await Category.findByIdAndDelete(req.params.id);

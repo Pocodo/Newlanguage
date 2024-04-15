@@ -4,7 +4,6 @@ const Product = require("../models/productModel");
 const auth = require("../services/authentication");
 const checkRole = require("../services/checkRole");
 
-// Add Product
 router.post(
   "/add",
   auth.authenticateToken,
@@ -19,9 +18,9 @@ router.post(
   }
 );
 
-// Get all products
 router.get("/get", auth.authenticateToken, async (req, res) => {
   try {
+    // Populate the 'categoryId' field to include the entire category document
     const products = await Product.find().populate("categoryId");
     res.status(200).json(products);
   } catch (error) {

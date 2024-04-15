@@ -15,7 +15,7 @@
     </style>
   </head>
   <body>
-    <h3 style="text-align: center">Cafe Managment System</h3>
+    <h3 style="text-align: center">Cafe Management System</h3>
     <table>
       <tr>
         <th>Name: <%= name %></th>
@@ -35,16 +35,16 @@
         <th>Price</th>
         <th>Sub Total</th>
       </tr>
-      <% if(productDetails.lenght > 0) { %> <% productDetails.forEach (product
-      => { %>
+      <% if(productDetails.length > 0) { %> <%
+      productDetails.forEach(function(product) { %>
       <tr>
-        <td><% product.name %></td>
-        <td><% product.category %></td>
-        <td><% product.quantity %></td>
-        <td><% product.price %></td>
-        <td><% product.total %></td>
+        <td><%= product.name %></td>
+        <td><%= product.categoryId.name %></td>
+        <td><%= product.quantity %></td>
+        <td><%= product.price %></td>
+        <td><%= product.total %></td>
       </tr>
-      <%});%> <%}%>
+      <% }); %> <% } %>
     </table>
     <h3>Total: <%= totalAmount %></h3>
   </body>
