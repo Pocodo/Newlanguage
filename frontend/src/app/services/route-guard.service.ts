@@ -20,6 +20,7 @@ export class RouteGuardService implements CanActivate {
     let expectedRoleArray = route.data;
     expectedRoleArray = expectedRoleArray.expectedRole;
     const token: any = localStorage.getItem('token');
+    console.log(token);
     let tokenPayload: any;
     try {
       tokenPayload = jwtDecode(token); // Change function call to use jwtDecode directly
