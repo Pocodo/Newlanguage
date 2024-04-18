@@ -42,6 +42,7 @@ export class ProductService {
   }
   getProduct(id: any){
     return this.httpClient.get(this.url + '/product/get/' +id);
+  }
   getProductsByCategory(id: any) {
     console.log(id);
     return this.httpClient.get(this.url + '/product/getByCategory/' + id);
