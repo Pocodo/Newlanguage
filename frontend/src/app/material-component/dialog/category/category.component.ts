@@ -74,7 +74,7 @@ export class CategoryComponent implements OnInit {
   edit() {
     var formData = this.categoryForm.value;
     var data = {
-      id: this.dialogData._id,
+      id: this.dialogData.data._id,
       name: formData.name,
     };
     this.categoryService.update(data).subscribe(
