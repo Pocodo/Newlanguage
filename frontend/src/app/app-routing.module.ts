@@ -3,6 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { FullComponent } from './layouts/full/full.component';
 import { RouteGuardService } from './services/route-guard.service';
+import { IndexProductComponent } from './IndexProduct/index-product/index-product.component';
+import { ProductDetailComponent } from './IndexProduct/index-product/ManageIndex/product-detail/product-detail.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -30,6 +32,14 @@ const routes: Routes = [
         path: 'dashboard',
         loadChildren: () =>
           import('./dashboard/dashboard.module').then((m) => m.DashboardModule),
+        canActivate: [RouteGuardService],
+        data: {
+          expectedRole: ['admin', 'user'],
+        },
+      },
+      {
+        path: 'IndexProduct',
+        component: IndexProductComponent,
         canActivate: [RouteGuardService],
         data: {
           expectedRole: ['admin', 'user'],

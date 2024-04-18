@@ -1,0 +1,14 @@
+<div *ngIf="products.length > 0" class="products-grid">
+  <h2>All Products</h2>
+  <div class="grid-container">
+    <div *ngFor="let product of products" class="grid-item">
+      <h3>{{ product.name }}</h3>
+      <a [routerLink]="['product-details/', product._id]">
+        <img src="{{ product.image }}" alt="{{ product.name }}" (click)="navigateToProductDetails(product._id)">
+      </a>
+    </div>
+  </div>
+</div>
+<div *ngIf="products.length === 0">
+  <p>No products available</p>
+</div>
