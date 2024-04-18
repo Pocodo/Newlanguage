@@ -12,7 +12,7 @@ const checkRole = require("../services/checkRole");
 router.post("/generatorReport", auth.authenticateToken, async (req, res) => {
   const generatedUuid = uuid.v1();
   const orderDetails = req.body;
-
+  console.log("bill:", req.body);
   // Assign orderDetails.productDetails directly to productDetailsReport
   const productDetailsReport = orderDetails.productDetails;
 
@@ -24,7 +24,6 @@ router.post("/generatorReport", auth.authenticateToken, async (req, res) => {
     paymentMethod: orderDetails.paymentMethod,
     total: orderDetails.totalAmount,
     productDetails: orderDetails.productDetails,
-    createdBy: orderDetails.createdBy,
   });
 
   try {
@@ -40,6 +39,8 @@ router.post("/generatorReport", auth.authenticateToken, async (req, res) => {
         paymentMethod: orderDetails.paymentMethod,
         totalAmount: orderDetails.totalAmount,
       },
+      console.log("test : ", productDetailsReport),
+
       (err, html) => {
         if (err) {
           console.error("Error rendering EJS:", err);
@@ -53,6 +54,7 @@ router.post("/generatorReport", auth.authenticateToken, async (req, res) => {
               console.error("Error creating PDF:", err);
               return res.status(500).json(err);
             }
+
             return res.status(200).json({ uuid: generatedUuid });
           });
       }

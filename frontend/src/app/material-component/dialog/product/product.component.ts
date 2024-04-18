@@ -92,6 +92,7 @@ export class ProductComponent implements OnInit {
       categoryId: formData.categoryId,
       price: formData.price,
       description: formData.description,
+      status: false,
       image: formData.image,
     };
     this.productService.add(data).subscribe(

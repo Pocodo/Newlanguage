@@ -29,11 +29,12 @@ export class ProductService {
   getProducts() {
     return this.httpClient.get(this.url + '/product/get/');
   }
-  updateStatus(data: any) {
-    return this.httpClient.patch(this.url + '/product/updateStatus/', data, {
-      headers: new HttpHeaders().set('Content-Type', 'application/json'),
+  updateStatus(id: any, status: any) {
+    return this.httpClient.patch(this.url + '/product/updateStatus/' + id, {
+      status,
     });
   }
+
   delete(id: any) {
     return this.httpClient.delete(this.url + '/product/delete/' + id, {
       headers: new HttpHeaders().set('Content-Type', 'application/json'),
@@ -41,5 +42,12 @@ export class ProductService {
   }
   getProduct(id: any){
     return this.httpClient.get(this.url + '/product/get/' +id);
+  getProductsByCategory(id: any) {
+    console.log(id);
+    return this.httpClient.get(this.url + '/product/getByCategory/' + id);
+  }
+  getById(id: any) {
+    console.log(id);
+    return this.httpClient.get(this.url + '/product/getById/' + id);
   }
 }

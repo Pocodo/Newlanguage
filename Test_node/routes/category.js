@@ -24,7 +24,6 @@ router.get("/get", async (req, res) => {
   }
 });
 
-// Get a specific category by ID
 router.get("/get/:id", async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
@@ -37,7 +36,6 @@ router.get("/get/:id", async (req, res) => {
   }
 });
 
-// Update a category
 router.patch("/update/:id", async (req, res) => {
   try {
     const { name } = req.body;
