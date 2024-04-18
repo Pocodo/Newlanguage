@@ -29,7 +29,6 @@ export class CategoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.categoryForm = this.formBuiler.group({
-      id: [null],
       name: [null, [Validators.required]],
     });
     if (this.dialogData.action === 'Edit') {

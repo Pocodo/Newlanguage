@@ -140,12 +140,11 @@ export class ManageProductComponent implements OnInit {
       }
     );
   }
-  onChange(status: any, id: any) {
-    var data = {
-      status: status.toString(),
-      id: id._id,
-    };
-    this.productService.updateStatus(data).subscribe(
+  onChange(id: any) {
+    // Toggle the status between 'true' and 'false'
+    let newStatus = id.status === 'true' ? 'false' : 'true';
+
+    this.productService.updateStatus(id, newStatus).subscribe(
       (response: any) => {
         this.ngxService.stop();
         this.responseMessage = response?.message;
