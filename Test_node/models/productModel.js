@@ -11,6 +11,7 @@ const productSchema = new mongoose.Schema({
     required: true,
   },
   description: String,
+  image:String,
   price: Number,
   status: String,
 });

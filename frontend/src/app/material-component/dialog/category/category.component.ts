@@ -29,6 +29,7 @@ export class CategoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.categoryForm = this.formBuiler.group({
+      id: [null],
       name: [null, [Validators.required]],
     });
     if (this.dialogData.action === 'Edit') {
@@ -74,7 +75,7 @@ export class CategoryComponent implements OnInit {
   edit() {
     var formData = this.categoryForm.value;
     var data = {
-      id: this.dialogData.id,
+      id: this.dialogData.data._id,
       name: formData.name,
     };
     this.categoryService.update(data).subscribe(
