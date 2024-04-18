@@ -1,17 +1,17 @@
 <mat-card>
-  <b><span>Manage Category</span></b>
+  <b><span>Manage Product</span></b>
   <button
     mat-flat-button
     color="primary"
     class="float-right"
     (click)="handleAddAction()"
   >
-    Add Category
+    Add Product
   </button>
 </mat-card>
 <hr />
 <mat-card>
-  <mat-form-field appeareance="fill">
+  <mat-form-field appearance="fill">
     <mat-label>Filter</mat-label>
     <input matInput (keyup)="applyFilter($event)" #input />
   </mat-form-field>
@@ -20,8 +20,23 @@
 <div class="responsive_table">
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>name</th>
+      <th mat-header-cell *matHeaderCellDef>Name</th>
       <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="categoryId">
+      <th mat-header-cell *matHeaderCellDef>Category Name</th>
+      <td mat-cell *matCellDef="let element">{{ element.categoryId }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef>description</th>
+      <td mat-cell *matCellDef="let element">{{ element.description }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="price">
+      <th mat-header-cell *matHeaderCellDef>Price</th>
+      <td mat-cell *matCellDef="let element">{{ element.price }}</td>
     </ng-container>
 
     <ng-container matColumnDef="edit">
@@ -43,6 +58,11 @@
         >
           <mat-icon>delete</mat-icon>
         </button>
+        <mat-slide-toggle
+          (change)="onChange($event.checked, element.id)"
+          matTooltip="Activate or Deactivate Product"
+          [checked]="element.status"
+        ></mat-slide-toggle>
       </td>
     </ng-container>
 
