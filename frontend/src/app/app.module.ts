@@ -24,6 +24,8 @@ import {
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { LoginComponent } from './login/login.component';
 import { TokenInterceptorInterceptor } from './services/token-interceptor.interceptor';
+import { IndexProductComponent } from './IndexProduct/index-product/index-product.component';
+import { ProductDetailComponent } from './IndexProduct/index-product/ManageIndex/product-detail/product-detail.component';
 
 const ngxUiLoaderConfig: NgxUiLoaderConfig = {
   text: 'loading...',
@@ -48,6 +50,8 @@ const ngxUiLoaderConfig: NgxUiLoaderConfig = {
     SignupComponent,
     ForgotPasswordComponent,
     LoginComponent,
+    IndexProductComponent,
+    ProductDetailComponent,
   ],
   imports: [
     BrowserModule,

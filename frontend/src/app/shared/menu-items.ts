@@ -8,6 +8,13 @@ export interface Menu {
 }
 const MENUITEMS = [
   {
+    state: 'IndexProduct',
+    name: 'Index',
+    icon: 'inventory',
+    role: '',
+  },
+
+  {
     state: 'dashboard',
     name: 'Dashboard',
     icon: 'dashboard',
