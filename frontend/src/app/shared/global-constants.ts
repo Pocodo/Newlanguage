@@ -1,6 +1,8 @@
 export class GlobalConstants {
   public static genericError: string = 'something went wrong';
   public static unauthorized: string = 'you are not authorized';
+  public static productExistError: string = 'Product already exist';
+  public static productAdded: string = 'Product Added Successfully';
 
   public static nameRegex: string = '[a-zA-Z0-9 ]*';
   public static emailRegex: string =

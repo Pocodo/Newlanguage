@@ -11,6 +11,7 @@ router.post(
   async (req, res) => {
     try {
       const product = await Product.create(req.body);
+
       res.status(200).json({ message: "Product added successfully" });
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -31,10 +32,13 @@ router.get("/get", auth.authenticateToken, async (req, res) => {
 // Get products by category ID
 router.get("/getByCategory/:id", auth.authenticateToken, async (req, res) => {
   try {
+    console.log(req.params.id);
     const products = await Product.find({
       categoryId: req.params.id,
       status: "true",
     }).select("id name");
+
+    console.log(products);
     res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -47,6 +51,7 @@ router.get("/getById/:id", auth.authenticateToken, async (req, res) => {
     const product = await Product.findById(req.params.id).select(
       "id name description price"
     );
+    console.log(product);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -77,6 +82,24 @@ router.patch(
     }
   }
 );
+router.patch("/updateStatus/:id", async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    product.status = status;
+    await product.save();
+
+    res.status(200).json({ message: "Product status updated successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Delete product
 router.delete(

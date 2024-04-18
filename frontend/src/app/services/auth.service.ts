@@ -5,7 +5,9 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class AuthService {
+  [x: string]: any;
   constructor(private router: Router) {}
+
   public isAuthenticated(): boolean {
     const token = localStorage.getItem('token');
     if (!token) {
