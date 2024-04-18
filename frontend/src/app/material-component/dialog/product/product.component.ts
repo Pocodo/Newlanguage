@@ -33,15 +33,15 @@ export class ProductComponent implements OnInit {
   ngOnInit(): void {
     this.productForm = this.formBuilder.group({
       name: [
-        Validators.required,
-        Validators.pattern(GlobalConstants.nameRegex),
+        null,
+        [Validators.required, Validators.pattern(GlobalConstants.nameRegex)]
       ],
       categoryId: [null, Validators.required],
       price: [null, Validators.required],
       description: [null, Validators.required],
+      image: [null]
     });
 
-    // Initialize dialogAction directly with dialogData.action value
     this.dialogAction = this.dialogData.action;
 
     if (this.dialogAction === 'Edit') {
@@ -50,12 +50,19 @@ export class ProductComponent implements OnInit {
     }
     this.getCategorys();
   }
+  onFileSelected(event: any) {
+    if (event.target.files.length > 0) {
+      const file = event.target.files[0];
+      this.productForm.patchValue({
+        image: file
+      });
+    }
+  }
 
   getCategorys() {
     this.categoryService.getCategory().subscribe(
       (response: any) => {
-        console.log(response); // Log the response to see what data is returned
-        this.categories = response; // Assuming you named the property 'categories'
+        this.categories = response;
       },
       (error: any) => {
         if (error.error?.message) {
@@ -86,6 +93,7 @@ export class ProductComponent implements OnInit {
       price: formData.price,
       description: formData.description,
       status: false,
+      image: formData.image,
     };
     this.productService.add(data).subscribe(
       (response: any) => {

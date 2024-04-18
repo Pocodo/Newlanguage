@@ -54,7 +54,7 @@
               *ngFor="let category of categories"
               [value]="category._id"
             >
-              {{ category | json }}
+              {{ category.name}}
               <!-- Log the entire category object to see its structure -->
             </mat-option>
           </mat-select>
@@ -79,6 +79,13 @@
             ></mat-error
           >
         </mat-form-field>
+      </div>
+      <div fxLayout="row-wrap">
+        <!-- Image Upload Button -->
+        <button mat-raised-button color="primary" (click)="fileInput.click()">
+          Upload Image
+        </button>
+        <input type="file" #fileInput hidden (change)="onFileSelected($event)" />
       </div>
     </div>
   </form>
