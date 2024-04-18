@@ -19,7 +19,7 @@ export class ProductComponent implements OnInit {
   dialogAction: any = 'Add';
   action: any = 'Add';
   responseMessage: any;
-  category: any = [];
+  categories: any = [];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: any,
@@ -40,17 +40,22 @@ export class ProductComponent implements OnInit {
       price: [null, Validators.required],
       description: [null, Validators.required],
     });
-    if (this.dialogAction.action === 'Edit') {
-      this.dialogAction = 'edit';
+
+    // Initialize dialogAction directly with dialogData.action value
+    this.dialogAction = this.dialogData.action;
+
+    if (this.dialogAction === 'Edit') {
       this.action = 'Update';
       this.productForm.patchValue(this.dialogData.data);
     }
     this.getCategorys();
   }
+
   getCategorys() {
     this.categoryService.getCategory().subscribe(
       (response: any) => {
-        this.category = response;
+        console.log(response); // Log the response to see what data is returned
+        this.categories = response; // Assuming you named the property 'categories'
       },
       (error: any) => {
         if (error.error?.message) {
@@ -104,7 +109,7 @@ export class ProductComponent implements OnInit {
   edit() {
     var formData = this.productForm.value;
     var data = {
-      id: this.dialogData.data.id,
+      id: this.dialogData.data._id,
       name: formData.name,
       categoryId: formData.categoryId,
       price: formData.price,

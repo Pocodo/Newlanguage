@@ -8,6 +8,7 @@ import { CategoryService } from 'src/app/services/category.service';
 import { SnackbarService } from 'src/app/services/snackbar.service';
 import { GlobalConstants } from 'src/app/shared/global-constants';
 import { CategoryComponent } from '../dialog/category/category.component';
+import { ConfirmationComponent } from '../dialog/confirmation/confirmation.component';
 
 @Component({
   selector: 'app-manage-category',
@@ -85,6 +86,43 @@ export class ManageCategoryComponent implements OnInit {
     const sub = dialogRef.componentInstance.onEditCategory.subscribe(
       (response) => {
         this.tableData();
+      }
+    );
+  }
+  handleDeleteAction(values: any) {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.data = {
+      message: 'delete' + values + ' category',
+    };
+    const dialogRef = this.dialog.open(ConfirmationComponent, dialogConfig);
+    const sub = dialogRef.componentInstance.onEmitStatusChange.subscribe(
+      (response) => {
+        this.ngxService.start();
+        this.deleteCategory(values._id);
+        dialogRef.close();
+      }
+    );
+  }
+  deleteCategory(id: any) {
+    this.categoryService.delete(id).subscribe(
+      (response: any) => {
+        this.ngxService.stop();
+        this.tableData();
+        this.resposeMessage = response?.message;
+        this.snackbarService.openSnackBar(this.resposeMessage, 'success');
+      },
+      (error: any) => {
+        this.ngxService.stop();
+        console.log(error);
+        if (error.error?.message) {
+          this.resposeMessage = error.error?.message;
+        } else {
+          this.resposeMessage = GlobalConstants.genericError;
+        }
+        this.snackbarService.openSnackBar(
+          this.resposeMessage,
+          GlobalConstants.error
+        );
       }
     );
   }

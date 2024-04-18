@@ -16,12 +16,13 @@
               productForm.controls.name.touched &&
               productForm.controls.name.invalid
             "
-          ></mat-error>
-          <span *ngIf="productForm.controls.name.errors.required"
-            >This field is madatory</span
           >
-          <span *ngIf="productForm.controls.name.errors.pattern"
-            >This field is invalid</span
+            <span *ngIf="productForm.controls.name.errors.required"
+              >This field is madatory</span
+            >
+            <span *ngIf="productForm.controls.name.errors.pattern"
+              >This field is invalid</span
+            ></mat-error
           >
         </mat-form-field>
       </div>
@@ -35,25 +36,31 @@
               productForm.controls.price.touched &&
               productForm.controls.price.invalid
             "
-          ></mat-error>
-          <span *ngIf="productForm.controls.price.errors.required"
-            >This field is madatory</span
           >
-          <span *ngIf="productForm.controls.price.errors.pattern"
-            >This field is invalid</span
+            <span *ngIf="productForm.controls.price.errors.required"
+              >This field is madatory</span
+            >
+            <span *ngIf="productForm.controls.price.errors.pattern"
+              >This field is invalid</span
+            ></mat-error
           >
         </mat-form-field>
+      </div>
+      <div fxLayout="row-wrap">
         <mat-form-field appearance="fill">
           <mat-label>Category</mat-label>
           <mat-select formControlName="categoryId">
             <mat-option
-              *ngIf="let category of categorys"
-              [value]="category.id"
-              >{{ category.id }}</mat-option
+              *ngFor="let category of categories"
+              [value]="category._id"
             >
+              {{ category | json }}
+              <!-- Log the entire category object to see its structure -->
+            </mat-option>
           </mat-select>
         </mat-form-field>
       </div>
+
       <div fxLayout="row-wrap">
         <mat-form-field appearance="fill" fxFlex>
           <mat-label>Description</mat-label>
@@ -63,12 +70,13 @@
               productForm.controls.description.touched &&
               productForm.controls.description.invalid
             "
-          ></mat-error>
-          <span *ngIf="productForm.controls.description.errors.required"
-            >This field is madatory</span
           >
-          <span *ngIf="productForm.controls.description.errors.pattern"
-            >This field is invalid</span
+            <span *ngIf="productForm.controls.description.errors.required"
+              >This field is madatory</span
+            >
+            <span *ngIf="productForm.controls.description.errors.pattern"
+              >This field is invalid</span
+            ></mat-error
           >
         </mat-form-field>
       </div>

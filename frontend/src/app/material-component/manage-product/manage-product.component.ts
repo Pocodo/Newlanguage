@@ -106,7 +106,7 @@ export class ManageProductComponent implements OnInit {
     const sub = dialogRef.componentInstance.onEmitStatusChange.subscribe(
       (response) => {
         this.ngxService.start();
-        this.deleteProduct(values.id);
+        this.deleteProduct(values._id);
         dialogRef.close();
       }
     );
@@ -137,7 +137,7 @@ export class ManageProductComponent implements OnInit {
   onChange(status: any, id: any) {
     var data = {
       status: status.toString(),
-      id: id,
+      id: id._id,
     };
     this.productService.updateStatus(data).subscribe(
       (response: any) => {
