@@ -93,6 +93,7 @@ export class ProductComponent implements OnInit {
       price: formData.price,
       description: formData.description,
 
+
       status: false,
 
       image: formData.image,
