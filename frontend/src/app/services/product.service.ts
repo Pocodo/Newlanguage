@@ -11,9 +11,15 @@ export class ProductService {
   constructor(private httpClient: HttpClient) {}
 
   add(data: any) {
-    return this.httpClient.post(this.url + '/product/add/', data, {
-      headers: new HttpHeaders().set('Content-Type', 'application/json'),
+    const formData = new FormData();
+    Object.keys(data).forEach((key) => {
+      if (key === 'image' && data[key] instanceof File) {
+        formData.append(key, data[key], data['name'] + '.jpg');
+      } else {
+        formData.append(key, data[key]);
+      }
     });
+    return this.httpClient.post(this.url + '/product/add/', formData);
   }
   update(data: any) {
     return this.httpClient.patch(this.url + '/product/update/', data, {
